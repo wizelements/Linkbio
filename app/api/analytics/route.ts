@@ -1,14 +1,19 @@
-import { supabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { trackEventSchema } from '@/lib/validation';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
     const validated = trackEventSchema.parse(body);
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('analytics_events')
       .insert([{
         page_id: validated.page_id,
@@ -53,7 +58,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const { data: events, error } = await supabaseAdmin
+    const { data: events, error } = await supabase
       .from('analytics_events')
       .select('*')
       .eq('page_id', pageId)

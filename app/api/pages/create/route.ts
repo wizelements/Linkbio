@@ -1,6 +1,13 @@
-import { supabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { createPageSchema } from '@/lib/validation';
 import { NextRequest, NextResponse } from 'next/server';
+import { z } from 'zod';
+
+// Use service role key for admin operations
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -8,7 +15,7 @@ export async function POST(req: NextRequest) {
     const validated = createPageSchema.parse(body);
 
     // Check if slug already exists
-    const { data: existing } = await supabaseAdmin
+    const { data: existing } = await supabase
       .from('pages')
       .select('id')
       .eq('slug', validated.slug)
@@ -21,7 +28,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('pages')
       .insert([{
         slug: validated.slug,
@@ -57,5 +64,3 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-
-import { z } from 'zod';

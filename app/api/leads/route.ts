@@ -1,7 +1,12 @@
-import { supabaseAdmin } from '@/lib/supabase';
+import { createClient } from '@supabase/supabase-js';
 import { createLeadSchema } from '@/lib/validation';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export async function POST(req: NextRequest) {
   try {
@@ -9,7 +14,7 @@ export async function POST(req: NextRequest) {
     const validated = createLeadSchema.parse(body);
 
     // Insert lead
-    const { data: lead, error: leadError } = await supabaseAdmin
+    const { data: lead, error: leadError } = await supabase
       .from('leads')
       .insert([{
         page_id: validated.page_id,
@@ -27,7 +32,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Track event
-    await supabaseAdmin
+    await supabase
       .from('analytics_events')
       .insert([{
         page_id: validated.page_id,
