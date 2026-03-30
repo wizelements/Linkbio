@@ -1,10 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
+import { createClient as createServerClient } from '@supabase/supabase-js';
 import { createPageSchema } from '@/lib/validation';
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 
-// Use service role key for admin operations
-const supabase = createClient(
+// Use service role key for admin operations (bypasses RLS)
+const supabase = createServerClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
